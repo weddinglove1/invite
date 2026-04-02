@@ -23,7 +23,12 @@
 /* ═══ RESET ═══ */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html { scroll-behavior: smooth; background: #1a1513; }
-body { font-family: 'Jost', sans-serif; color: var(--dark); display: flex; justify-content: center; min-height: 100svh; overflow-x: hidden; touch-action: pan-y; perspective: 1000px; }
+
+/* УБРАЛ perspective из body, чтобы не ломался position: fixed */
+body { font-family: 'Jost', sans-serif; color: var(--dark); display: flex; justify-content: center; min-height: 100svh; overflow-x: hidden; touch-action: pan-y; }
+
+/* Жесткая блокировка скролла, пока висит экран блокировки */
+body.locked { overflow: hidden !important; height: 100svh; touch-action: none; }
 
 /* ═══ LOADER ═══ */
 #loader {
@@ -511,6 +516,8 @@ window.addEventListener('load', () => {
     
     // Проверка устройства: если ширина меньше 768px (мобильный) - показываем экран блокировки
     if (window.innerWidth < 768) {
+      document.body.classList.add('locked'); // ЖЕСТКО блокируем скролл сайта
+      window.scrollTo(0, 0); // Убеждаемся, что мы на самом верху документа
       document.getElementById('unlock-screen').classList.add('active');
     } else {
       // Иначе сразу запускаем сайт
@@ -551,7 +558,7 @@ function endDrag() {
   }
 }
 
-// Запускаем слушатели только если элемент существует и отображается
+// Запускаем слушатели только если элемент существует
 if(btn) {
   btn.addEventListener('mousedown', startDrag);
   btn.addEventListener('touchstart', startDrag, {passive:true});
@@ -562,6 +569,9 @@ if(btn) {
 }
 
 function triggerEntry() {
+  // Убираем класс блокировки скролла, чтобы сайт снова стал листаться
+  document.body.classList.remove('locked');
+  
   // Убираем экран блокировки
   unlockScreen.classList.remove('active');
   unlockScreen.classList.add('unlocked');
@@ -570,7 +580,7 @@ function triggerEntry() {
   document.getElementById('side-nav').classList.add('vis');
   document.getElementById('sc-hint').classList.add('vis');
   
-  // Плавно показываем первый экран с задержкой
+  // Плавно показываем первый экран
   setTimeout(() => {
     document.querySelectorAll('#hero .reveal').forEach(el => el.classList.add('vis'));
   }, 300);
