@@ -47,7 +47,7 @@ body { font-family: 'Jost', sans-serif; color: var(--dark); display: flex; justi
 @keyframes ldUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
 @keyframes ldSweep { from{transform:translateX(-100%)} to{transform:translateX(100%)} }
 
-/* ═══ SLIDE TO UNLOCK ═══ */
+/* ═══ SLIDE TO UNLOCK (MOBILE ONLY) ═══ */
 #unlock-screen {
   position: fixed; inset: 0; z-index: 9999;
   background: rgba(250, 246, 242, 0.4); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
@@ -57,6 +57,11 @@ body { font-family: 'Jost', sans-serif; color: var(--dark); display: flex; justi
 }
 #unlock-screen.active { opacity: 1; visibility: visible; pointer-events: all; transform: scale(1); }
 #unlock-screen.unlocked { opacity: 0; transform: scale(1.05); pointer-events: none; visibility: hidden; }
+
+@media (min-width: 768px) {
+  /* Прячем экран блокировки на компьютерах и планшетах */
+  #unlock-screen { display: none !important; }
+}
 
 .unlock-msg { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 22px; color: var(--dark); margin-bottom: 40px; text-align: center; animation: floatMsg 3s ease-in-out infinite; }
 .unlock-track { width: 280px; height: 64px; border-radius: 40px; background: rgba(255,255,255,0.6); border: 1px solid rgba(196,160,136,0.4); position: relative; box-shadow: inset 0 2px 10px rgba(139,107,90,0.05), 0 10px 40px var(--shadow); display: flex; align-items: center; justify-content: center; overflow: hidden; }
@@ -216,7 +221,7 @@ section { display: flex; flex-direction: column; align-items: center; justify-co
 .map-btn:hover::before { left: 100%; }
 .map-btn:active { transform: scale(.95); }
 
-/* ═══ DRESS CODE (FIXED PNG & SEPARATED GROUPS) ═══ */
+/* ═══ DRESS CODE (FIXED LAYOUT AND PNG) ═══ */
 .dc-container { width: 100%; max-width: 340px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
 .dc-intro { text-align: center; font-size: 13px; color: var(--mid); line-height: 1.8; font-weight: 300; letter-spacing: 0.04em; margin-bottom: 10px; }
 .dc-group { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
@@ -228,9 +233,7 @@ section { display: flex; flex-direction: column; align-items: center; justify-co
 /* FIX FOR Transparent PNG: No borders, no bg, drop-shadow instead of box-shadow */
 .dc-photo { 
   width: 100%; max-width: 300px; display: block; margin: 0 auto; 
-  /* Crucial animation for WOW effect */
   animation: floatImg 6s ease-in-out infinite, imgBreathe 10s ease-in-out infinite alternate; 
-  /* Replaced box-shadow with filter: drop-shadow so it wraps the PNG content */
   filter: drop-shadow(0 15px 25px rgba(139,107,90,0.25)); 
 }
 @keyframes floatImg { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
@@ -300,7 +303,7 @@ footer small { font-size: 9px; letter-spacing: .5em; text-transform: uppercase; 
   <div class="ld-bar"></div>
 </div>
 
-<!-- ═══ SLIDE TO UNLOCK (IOS STYLE) ═══ -->
+<!-- ═══ SLIDE TO UNLOCK (IOS STYLE - MOBILE ONLY) ═══ -->
 <div id="unlock-screen">
   <div class="unlock-msg">Добро пожаловать<br>на нашу свадьбу</div>
   <div class="unlock-track" id="u-track">
@@ -419,7 +422,7 @@ footer small { font-size: 9px; letter-spacing: .5em; text-transform: uppercase; 
       <a class="map-btn reveal" href="https://yandex.ru/maps/?text=%D0%9A%D1%80%D0%B0%D1%81%D0%BD%D0%BE%D1%8F%D1%80%D1%81%D0%BA+%D0%9B%D0%B5%D0%BD%D0%B8%D0%BD%D0%B0+121" target="_blank" rel="noopener">Открыть в картах</a>
     </section>
 
-    <!-- DRESS CODE (FIXED LAYOUT AND PNG) -->
+    <!-- DRESS CODE -->
     <div class="sec-divider"><span></span><i>◆</i><span></span></div>
     <section id="dresscode">
       <div class="sec-head reveal"><h2>Дресс-код</h2><span class="sc">dress code</span><div class="divdr"><span></span><i>◆</i><span></span></div></div>
@@ -427,16 +430,13 @@ footer small { font-size: 9px; letter-spacing: .5em; text-transform: uppercase; 
       <div class="dc-container reveal">
         <p class="dc-intro">Будем признательны, если при выборе нарядов вы поддержите цветовую гамму нашего праздника:</p>
         
-        <!-- Верхняя надпись -->
         <div class="dc-group">
           <span class="dc-title">Для мужчин</span>
           <span class="dc-colors-list">Белый · Бежевый · Коричневый · Чёрный</span>
         </div>
 
-        <!-- Центральная прозрачная картинка с тенью drop-shadow -->
         <img class="dc-photo" src="image.png" alt="Палитра" onerror="this.style.display='none'">
 
-        <!-- Нижняя надпись -->
         <div class="dc-group">
           <span class="dc-title">Для женщин</span>
           <span class="dc-colors-list">Масло · Кремовый · Пудровый<br>Бежевый · Коричневый</span>
@@ -508,7 +508,14 @@ footer small { font-size: 9px; letter-spacing: .5em; text-transform: uppercase; 
 window.addEventListener('load', () => {
   setTimeout(() => {
     document.getElementById('loader').classList.add('out');
-    document.getElementById('unlock-screen').classList.add('active');
+    
+    // Проверка устройства: если ширина меньше 768px (мобильный) - показываем экран блокировки
+    if (window.innerWidth < 768) {
+      document.getElementById('unlock-screen').classList.add('active');
+    } else {
+      // Иначе сразу запускаем сайт
+      triggerEntry();
+    }
   }, 1900);
 });
 
@@ -543,20 +550,27 @@ function endDrag() {
     btn.style.transform = 'translateX(0)';
   }
 }
-btn.addEventListener('mousedown', startDrag);
-btn.addEventListener('touchstart', startDrag, {passive:true});
-window.addEventListener('mousemove', onDrag);
-window.addEventListener('touchmove', onDrag, {passive:true});
-window.addEventListener('mouseup', endDrag);
-window.addEventListener('touchend', endDrag);
+
+// Запускаем слушатели только если элемент существует и отображается
+if(btn) {
+  btn.addEventListener('mousedown', startDrag);
+  btn.addEventListener('touchstart', startDrag, {passive:true});
+  window.addEventListener('mousemove', onDrag);
+  window.addEventListener('touchmove', onDrag, {passive:true});
+  window.addEventListener('mouseup', endDrag);
+  window.addEventListener('touchend', endDrag);
+}
 
 function triggerEntry() {
+  // Убираем экран блокировки
   unlockScreen.classList.remove('active');
   unlockScreen.classList.add('unlocked');
   
+  // Показываем навигацию и подсказку
   document.getElementById('side-nav').classList.add('vis');
   document.getElementById('sc-hint').classList.add('vis');
   
+  // Плавно показываем первый экран с задержкой
   setTimeout(() => {
     document.querySelectorAll('#hero .reveal').forEach(el => el.classList.add('vis'));
   }, 300);
