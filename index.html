@@ -51,7 +51,7 @@ body.a11y-mode .btn-sub { background: #000; color: #fff; font-size: 14px; font-w
 .ld-mono { font-family: 'Great Vibes', cursive; font-size: 78px; color: var(--accent); animation: ldPulse 2s ease-in-out infinite; line-height: 1; }
 @keyframes ldPulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.08);opacity:.7} }
 
-/* ═══ ENVELOPE SCREEN (ИНТЕРАКТИВНОЕ ВСКРЫТИЕ) ═══ */
+/* ═══ ENVELOPE SCREEN ═══ */
 #envelope-screen {
   position: fixed; inset: 0; z-index: 10000;
   background: #151110; display: flex; flex-direction: column;
@@ -118,6 +118,7 @@ body.a11y-mode .btn-sub { background: #000; color: #fff; font-size: 14px; font-w
 /* ═══ FLOATING BUTTONS ═══ */
 .float-btn { position: fixed; z-index: 500; width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,.8); backdrop-filter: blur(12px); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: all .4s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 4px 20px var(--shadow); }
 .float-btn:active { transform: scale(.9); }
+
 #scroll-top { bottom: 28px; right: 16px; transform: translateY(20px) scale(0.8); color: var(--accent); font-size: 18px; }
 #scroll-top.vis { opacity: 1; transform: translateY(0) scale(1); }
 
@@ -146,10 +147,13 @@ canvas { position: fixed; pointer-events: none; z-index: 1; }
 .silk-bg::before { content: ''; position: absolute; width: 150%; height: 150%; top: -25%; left: -25%; border-radius: 40% 60% 55% 45%/50% 40% 60% 50%; background: radial-gradient(ellipse,rgba(232,208,185,.3) 0%,rgba(220,190,165,.1) 50%,transparent 70%); animation: sD1 25s cubic-bezier(.4,0,.2,1) infinite alternate; will-change: transform; }
 .silk-bg::after { content: ''; position: absolute; width: 140%; height: 140%; bottom: -30%; right: -20%; border-radius: 50% 40% 60% 45%/45% 55% 40% 60%; background: radial-gradient(ellipse,rgba(240,220,200,.25) 0%,rgba(228,200,178,.1) 50%,transparent 70%); animation: sD2 28s cubic-bezier(.4,0,.2,1) infinite alternate; will-change: transform; }
 .silk-m { position: absolute; width: 120%; height: 100%; top: 20%; left: -10%; border-radius: 35% 65% 48% 52%/58% 32% 68% 42%; background: radial-gradient(ellipse,rgba(215,185,160,.2) 0%,rgba(235,210,190,.05) 50%,transparent 70%); animation: sD3 22s cubic-bezier(.4,0,.2,1) infinite alternate; will-change: transform; }
+
 @keyframes sD1 { 0%{transform:translate(0,0) rotate(-1deg) scale(1)} 100%{transform:translate(2%,-2%) rotate(1deg) scale(1.02)} }
 @keyframes sD2 { 0%{transform:translate(0,0) rotate(1deg) scale(1.02)} 100%{transform:translate(-2%,2%) rotate(-1deg) scale(.98)} }
 @keyframes sD3 { 0%{transform:translate(0,0) rotate(-1deg)} 100%{transform:translate(1%,1%) rotate(1deg)} }
+
 .noise-overlay { position: fixed; width: 100%; max-width: 480px; height: 100%; z-index: 1; pointer-events: none; opacity: .03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
 main { position: relative; z-index: 2; display: flex; flex-direction: column; }
 
 /* ═══ 3D TILT EFFECT CLASS ═══ */
@@ -571,11 +575,9 @@ footer small { font-size: 9px; letter-spacing: .5em; text-transform: uppercase; 
    LOADER -> ENVELOPE -> SLIDE TO UNLOCK
 ═══════════════════════════════════════════════ */
 window.addEventListener('load', () => {
-  // Очень быстрый лоадер (только чтобы шрифты загрузились)
   setTimeout(() => {
     document.getElementById('loader').classList.add('out');
     
-    // Показываем конверт
     setTimeout(() => {
       document.getElementById('envelope-screen').classList.add('active');
     }, 400);
@@ -594,32 +596,27 @@ const envHint = document.getElementById('env-hint');
 
 if(envSeal) {
   envSeal.addEventListener('click', () => {
-    // 1. Ломаем печать
     envSeal.style.transform = 'translate(-50%, -50%) scale(1.3)';
     envSeal.style.opacity = '0';
     envHint.style.opacity = '0';
 
-    // 2. Откидываем клапан
     setTimeout(() => {
       envFlap.style.transform = 'rotateX(180deg)';
       
-      // 3. Выдвигаем карточку
       setTimeout(() => {
         envCard.style.zIndex = '5'; 
         envCard.style.transform = 'translateY(-100px)';
         
-        // 4. Летим внутрь карточки (Zoom in fade out)
         setTimeout(() => {
           envScreen.style.transform = 'scale(5) translateY(20px)';
           envScreen.style.opacity = '0';
           
-          // 5. Запускаем сайт (Или экран разблокировки на мобильных)
           setTimeout(() => {
             envScreen.style.display = 'none';
             if (window.innerWidth < 768) {
               document.getElementById('unlock-screen').classList.add('active');
             } else {
-              triggerEntry(); // ПК сразу запускает сайт
+              triggerEntry(); 
             }
           }, 800);
         }, 1100);
@@ -677,7 +674,6 @@ function triggerEntry() {
   document.getElementById('side-nav').classList.add('vis');
   document.getElementById('sc-hint').classList.add('vis');
   
-  // Показываем глазик и раскрываем его на 4 секунды
   const eyeWrap = document.getElementById('a11y-wrap');
   eyeWrap.classList.add('vis');
   setTimeout(() => {
@@ -693,7 +689,7 @@ function triggerEntry() {
 }
 
 /* ═══════════════════════════════════════════════
-   ACCESSIBILITY TOGGLE (ДЛЯ СЛАБОВИДЯЩИХ)
+   ACCESSIBILITY TOGGLE
 ═══════════════════════════════════════════════ */
 const a11yBtn = document.getElementById('a11y-btn');
 const a11yLabel = document.querySelector('.a11y-label');
@@ -704,7 +700,7 @@ a11yBtn.addEventListener('click', () => {
 });
 
 /* ═══════════════════════════════════════════════
-   BIDIRECTIONAL SCROLL ANIMATIONS (FIXED SHAKING)
+   BIDIRECTIONAL SCROLL ANIMATIONS
 ═══════════════════════════════════════════════ */
 const io = new IntersectionObserver(entries => {
   entries.forEach(e => {
@@ -747,7 +743,7 @@ scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 's
 dots.forEach(d => d.addEventListener('click', () => document.getElementById(d.dataset.target).scrollIntoView({behavior:'smooth'})));
 
 /* ═══════════════════════════════════════════════
-   3D PARALLAX TILT EFFECT FOR DESKTOP
+   3D PARALLAX TILT EFFECT
 ═══════════════════════════════════════════════ */
 document.querySelectorAll('.tilt-card').forEach(card => {
   card.addEventListener('mousemove', e => {
@@ -866,17 +862,16 @@ async function doSubmit(e) {
       
       const titleEl = document.getElementById('sTitle');
       const subEl = document.getElementById('sSub');
-      const shortName = name.split(' ')[0];
 
       if (presence === 'yes') {
-        titleEl.innerHTML = `Спасибо, ${shortName}!<br>Ждём вас с нетерпением`;
+        titleEl.innerHTML = `Спасибо за ответ!<br>Ждём вас с нетерпением`;
         subEl.textContent = 'До встречи 26 июня 2026';
         if(!document.body.classList.contains('a11y-mode')) launchConfetti();
       } else if (presence === 'no') {
-        titleEl.innerHTML = `Спасибо за ответ, ${shortName}.<br>Очень жаль, что вы не сможете!`;
+        titleEl.innerHTML = `Спасибо за ответ.<br>Очень жаль, что вы не сможете!`;
         subEl.textContent = 'Будем по вам скучать ♡';
       } else {
-        titleEl.innerHTML = `Спасибо, ${shortName}!<br>Подождем вашего решения`;
+        titleEl.innerHTML = `Анкета получена!<br>Подождем вашего решения`;
         subEl.textContent = 'Сообщите нам до 1 июня 2026';
       }
       
@@ -889,7 +884,7 @@ async function doSubmit(e) {
 }
 
 /* ═══════════════════════════════════════════════
-   CONFETTI (Fires on "YES" RSVP)
+   CONFETTI
 ═══════════════════════════════════════════════ */
 function launchConfetti() {
   const c = document.getElementById('confetti-cv'); c.classList.add('show');
